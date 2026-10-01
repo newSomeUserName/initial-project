@@ -1,17 +1,31 @@
 "use server";
 
+import {redirect} from "next/navigation";
+import {createUser} from "../lib/auth/authentication";
+
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function signUp(prevState, formData)
 {
+    await new Promise(resolve => setTimeout(resolve,1000));
+    const name = formData.get("name");
     const email = formData.get("email");
     const password = formData.get("password");
 
     const errors = validateCredentials(email, password);
     if (Object.keys(errors).length > 0)
-        return { errors };
+        return { errors , values: {name, email, password}};
 
+    try {
+        const result = await createUser(email,password,name);
+        console.log(result);
+    }
+    catch (error)
+    {
+        console.log(error);
+    }
 
+    redirect('/');
 }
 
 function validateCredentials(email, password)
