@@ -1,7 +1,7 @@
 "use server";
 
 import {redirect} from "next/navigation";
-import {createUser} from "../lib/auth/authentication";
+import {createUser, loginUser} from "../lib/auth/authentication";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -27,6 +27,22 @@ export async function signUp(prevState, formData)
     redirect('/');
 }
 
+export async function login(prevState, formData)
+{
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    try {
+        await loginUser(email, password);
+    }
+    catch (error)
+    {
+        return { error : error.message , values: {email}};
+    }
+
+    redirect('/');
+}
+
 function validateCredentials(email, password)
 {
     let errors = {};
@@ -40,3 +56,11 @@ function validateCredentials(email, password)
     }
     return errors;
 }
+
+// export async function auth(mode, prevState, formData)
+// {
+//     if (mode === 'login')
+//         return login(prevState,formData);
+//     else
+//         return signUp(prevState,formData);
+// }
