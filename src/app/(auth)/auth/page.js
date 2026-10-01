@@ -1,11 +1,19 @@
 import SignUpForm from "../../../../components/auth/sign-up-form";
+import {auth} from "../../../../lib/auth/server";
+import {redirect} from "next/navigation";
 
-export default function AuthPage() {
-  return (
+export default async function AuthPage() {
+    const {data} = await auth.getSession();
+
+    if (data)
+    {
+        redirect("/");
+    }
+
+    return (
     <>
       <main className="flex min-h-screen items-center justify-center  px-6 py-16 text-[#e8e6e3]">
         <section className="w-full max-w-sm rounded-xl border border-[#3d4349] bg-[#2b2f33] p-6 sm:p-8">
-
               <SignUpForm/>
         </section>
       </main>

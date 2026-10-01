@@ -28,7 +28,7 @@ export default function SignUpForm() {
                         defaultValue={state?.values?.password}
                     />
                     {state?.errors?.password && (
-                        <p id="email-error" className="-mt-3 text-xs text-[#f28b82]">
+                        <p id="password-error" className="-mt-3 text-xs text-[#f28b82]">
                             {state.errors.password}
                         </p>
                     )}
