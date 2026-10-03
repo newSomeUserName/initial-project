@@ -1,7 +1,7 @@
 "use server";
 
 import {redirect} from "next/navigation";
-import {createUser, loginUser} from "../lib/auth/authentication";
+import {createUser, loginUser} from "@/lib/auth/authentication";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

@@ -1,6 +1,6 @@
-import {auth} from "../../../../lib/auth/server";
+import {auth} from "../../../lib/auth/server";
 import {redirect} from "next/navigation";
-import AuthForm from "../../../../components/auth/auth-forms";
+import AuthForm from "../../../components/auth/auth-forms";
 import {connection} from "next/server";
 
 export default async function AuthPage({searchParams}) {
