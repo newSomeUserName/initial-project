@@ -1,6 +1,6 @@
 "use client";
 
-import {client} from "../..gi/lib/auth/client";
+import {client} from "../../lib/auth/client";
 import {useRouter} from "next/navigation";
 
 export default function SignOutButton()
