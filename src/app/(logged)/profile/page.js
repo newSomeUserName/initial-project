@@ -3,6 +3,7 @@ import {Suspense} from "react";
 import Link from "next/link";
 import {auth} from "../../../lib/auth/server";
 import {connection} from "next/server";
+import {cacheLife} from "next/cache";
 const profile = {
     name: "Your Name",
     email: "you@example.com",
@@ -36,6 +37,8 @@ Nothing extraordinary happened. I think that’s why the day stayed with me. It 
 const MOBILE_LIMIT = 3;
 
 async function FriendsList({userId}) {
+    "use cache";
+    cacheLife("max");
     const friends = await getFriends(userId);
 
     return (
@@ -90,11 +93,21 @@ async function FriendsList({userId}) {
     );
 }
 
-//TODO i need to cache friends count and revalidate it when user will add or delete a friend
-//also i need to cache static user info like name or email
 
-//TODO delete this after i will study about caching
-// export const dynamic = 'force-dynamic';
+async function AsideSelfBasicInfo({name, email})
+{
+    "use cache"
+    cacheLife("max");
+
+    return  <div className="min-w-0">
+        <h1 className="text-xl font-semibold tracking-tight text-stone-950 lg:text-2xl">
+            {name}
+        </h1>
+        <p className="mt-1 break-all text-sm text-stone-500 lg:text-base">
+            {email}
+        </p>
+    </div>
+}
 
 async function AsideUserInfo()
 {
@@ -118,17 +131,10 @@ async function AsideUserInfo()
                     {profile.name.charAt(0)}
                 </div>
             )}
-
-            <div className="min-w-0">
-                <h1 className="text-xl font-semibold tracking-tight text-stone-950 lg:text-2xl">
-                    {session.user.name}
-                </h1>
-                <p className="mt-1 break-all text-sm text-stone-500 lg:text-base">
-                    {session.user.email}
-                </p>
-            </div>
+            <Suspense fallback={<>Loading Profile</>}>
+                <AsideSelfBasicInfo name={session.user.name} email={session.user.email}/>
+            </Suspense>
         </div>
-
         <Suspense fallback={<h1>LOADING FRIENDS</h1>}>
             <FriendsList userId={userId} />
         </Suspense>
