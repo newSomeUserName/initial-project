@@ -2,6 +2,7 @@ import {getFriends} from "../../../lib/friends";
 import {Suspense} from "react";
 import Link from "next/link";
 import {auth} from "../../../lib/auth/server";
+import {connection} from "next/server";
 const profile = {
     name: "Your Name",
     email: "you@example.com",
@@ -93,10 +94,11 @@ async function FriendsList({userId}) {
 //also i need to cache static user info like name or email
 
 //TODO delete this after i will study about caching
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic';
 
 async function AsideUserInfo()
 {
+    await connection();
     const {data: session} = await auth.getSession();
     const userId = session?.user?.id;
 
