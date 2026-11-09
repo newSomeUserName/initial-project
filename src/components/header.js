@@ -9,7 +9,7 @@ export default function Header()
             href="/"
             className="text-xl font-semibold tracking-tight text-neutral-950"
         >
-            My Life Blog
+            Bybit СБП P2P
         </Link>
         <div className="flex items-center gap-5">
             <Navigation/>
