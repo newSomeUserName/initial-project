@@ -1,21 +1,38 @@
+import {FIATS, parseFiat} from "@/lib/bybit";
+
 export default async function OfferFilters({searchParams})
 {
     const params = await searchParams;
+    const fiat = parseFiat(params.fiat);
 
     return (
         <form method="get" className="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-stone-200 bg-stone-50 p-4">
             <div>
+                <label htmlFor="fiat" className="mb-1 block text-sm text-stone-600">
+                    Pay with
+                </label>
+                <select
+                    id="fiat"
+                    name="fiat"
+                    defaultValue={fiat}
+                    className="rounded-md border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
+                >
+                    {FIATS.map((f) => <option key={f} value={f}>{f}</option>)}
+                </select>
+            </div>
+
+            <div>
                 <label htmlFor="amount" className="mb-1 block text-sm text-stone-600">
-                    I want to spend (RUB)
+                    I want to spend
                 </label>
                 <input
                     id="amount"
                     name="amount"
                     type="number"
                     min="0"
-                    step="100"
+                    step="any"
                     inputMode="numeric"
-                    placeholder="e.g. 10000"
+                    placeholder={fiat === "RUB" ? "e.g. 10000" : "e.g. 100"}
                     defaultValue={params.amount ?? ""}
                     className="w-44 rounded-md border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
                 />

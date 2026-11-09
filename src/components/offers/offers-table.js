@@ -1,19 +1,20 @@
-import {getSbpOffers} from "@/lib/bybit";
+import {getSbpOffers, parseFiat} from "@/lib/bybit";
 
-const rub = new Intl.NumberFormat("ru-RU", {maximumFractionDigits: 2});
+const money = new Intl.NumberFormat("ru-RU", {maximumFractionDigits: 3});
 const usdt = new Intl.NumberFormat("ru-RU", {maximumFractionDigits: 4});
 
-const BYBIT_LINK = "https://www.bybit.com/fiat/trade/otc/?actionType=1&token=USDT&fiat=RUB";
+const BYBIT_LINK = "https://www.bybit.com/fiat/trade/otc/?actionType=1&token=USDT";
 
 export default async function OffersTable({searchParams})
 {
     const params = await searchParams;
+    const fiat = parseFiat(params.fiat);
     const amount = Number(params.amount) || undefined;
     const sbpOnly = params.sbpOnly === "1";
 
     let data;
     try {
-        data = await getSbpOffers({amount, sbpOnly});
+        data = await getSbpOffers({fiat, amount, sbpOnly});
     }
     catch (error)
     {
@@ -31,12 +32,12 @@ export default async function OffersTable({searchParams})
             <p className="mb-3 flex flex-wrap justify-between gap-2 text-sm text-stone-500">
                 <span>
                     {offers.length} {offers.length === 1 ? "offer" : "offers"}
-                    {amount ? ` that accept ${rub.format(amount)} ₽` : ""} · {scanned} ads scanned
+                    {amount ? ` that accept ${money.format(amount)} ${fiat}` : ""} · {scanned} ads scanned
                 </span>
                 <span>
                     Updated {new Date(fetchedAt).toLocaleTimeString("ru-RU")} ·{" "}
                     <a
-                        href={`${BYBIT_LINK}&paymentMethod=${sbpIds[0]}`}
+                        href={`${BYBIT_LINK}&fiat=${fiat}&paymentMethod=${sbpIds[0]}`}
                         target="_blank"
                         rel="noreferrer"
                         className="underline underline-offset-4 hover:text-stone-900"
@@ -48,8 +49,8 @@ export default async function OffersTable({searchParams})
 
             {offers.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-stone-300 p-10 text-center text-stone-600">
-                    No СБП offers right now. Bybit only shows RUB ads to some regions, so if this
-                    stays empty, check that the server runs from a location where RUB P2P is available.
+                    No СБП offers for {fiat} right now.
+                    {fiat === "RUB" && " Bybit only shows RUB ads to some regions, so the server must run from a location where RUB P2P is available."}
                 </p>
             ) : (
                 <div className="overflow-x-auto rounded-xl border border-stone-200">
@@ -57,10 +58,10 @@ export default async function OffersTable({searchParams})
                         <thead className="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                             <tr>
                                 <th className="px-4 py-3 font-medium">Seller</th>
-                                <th className="px-4 py-3 text-right font-medium">Price, ₽</th>
+                                <th className="px-4 py-3 text-right font-medium">Price, {fiat}</th>
                                 {amount && <th className="px-4 py-3 text-right font-medium">You get, USDT</th>}
                                 <th className="px-4 py-3 text-right font-medium">Available, USDT</th>
-                                <th className="px-4 py-3 text-right font-medium">Limits, ₽</th>
+                                <th className="px-4 py-3 text-right font-medium">Limits, {fiat}</th>
                                 <th className="px-4 py-3 font-medium">Payment</th>
                             </tr>
                         </thead>
@@ -93,7 +94,7 @@ function OfferRow({offer, amount})
                 </div>
             </td>
             <td className="px-4 py-3 text-right text-base font-semibold tabular-nums text-stone-950">
-                {rub.format(offer.price)}
+                {money.format(offer.price)}
             </td>
             {amount && (
                 <td className="px-4 py-3 text-right tabular-nums text-stone-900">
@@ -104,7 +105,7 @@ function OfferRow({offer, amount})
                 {usdt.format(offer.available)}
             </td>
             <td className="px-4 py-3 text-right tabular-nums text-stone-700">
-                {rub.format(offer.minAmount)} – {rub.format(offer.maxAmount)}
+                {money.format(offer.minAmount)} – {money.format(offer.maxAmount)}
             </td>
             <td className="px-4 py-3">
                 <div className="flex flex-wrap gap-1">

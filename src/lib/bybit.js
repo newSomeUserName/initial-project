@@ -24,6 +24,14 @@ const SBP_REFUSED =
 // Remarks saying SBP is the only way to pay: "только СБП", "только по СБП", "only SBP".
 const SBP_ONLY_IN_REMARK = /(только|only)\s+(через\s+|по\s+)?([сc]бп|sbp)|([сc]бп|sbp)\s+(только|only)/i;
 
+// Fiat currencies you can pay with. The first one is the default.
+export const FIATS = ["USD", "RUB"];
+
+export function parseFiat(value)
+{
+    return FIATS.includes(value) ? value : FIATS[0];
+}
+
 export const PAGE_SIZE = 100;
 const MAX_PAGES = 30;
 
@@ -76,16 +84,16 @@ export function findSbpIds(paymentNames)
     return ids;
 }
 
-async function getOffersPage({amount, page})
+async function getOffersPage({fiat, amount, page})
 {
     return post("/item/online", {
         userId: "",
         tokenId: "USDT",
-        currencyId: "RUB",
+        currencyId: fiat,
         // No payment filter: many sellers pick "Bank Transfer" and write "СБП"
         // in the description, so we load everything and filter ourselves.
         payment: [],
-        // "1" = ads where the advertiser SELLS USDT, i.e. you buy USDT for RUB
+        // "1" = ads where the advertiser SELLS USDT, i.e. you buy USDT for fiat
         side: "1",
         size: String(PAGE_SIZE),
         page: String(page),
@@ -113,13 +121,14 @@ export function sbpSource(payments, remark, sbpSet)
 }
 
 /**
- * All online ads where you can buy USDT with RUB and pay via SBP.
+ * All online ads where you can buy USDT with fiat (USD by default) and pay via SBP.
  *
  * @param {object}  options
- * @param {number}  [options.amount]   RUB you want to spend; ads whose limits don't fit are dropped
+ * @param {string}  [options.fiat]     fiat currency you pay with, see FIATS
+ * @param {number}  [options.amount]   fiat amount you want to spend; ads whose limits don't fit are dropped
  * @param {boolean} [options.sbpOnly]  keep only ads where SBP is the only way to pay
  */
-export async function getSbpOffers({amount, sbpOnly = false} = {})
+export async function getSbpOffers({fiat = FIATS[0], amount, sbpOnly = false} = {})
 {
     const paymentNames = await getPaymentNames().catch(() => ({}));
     const sbpIds = findSbpIds(paymentNames);
@@ -128,7 +137,7 @@ export async function getSbpOffers({amount, sbpOnly = false} = {})
     let total = 0;
     for (let page = 1; page <= MAX_PAGES; page++)
     {
-        const result = await getOffersPage({amount, page});
+        const result = await getOffersPage({fiat, amount, page});
         total = Number(result.count ?? 0);
         items.push(...(result.items ?? []));
         if (items.length >= total || (result.items ?? []).length < PAGE_SIZE)
@@ -143,7 +152,7 @@ export async function getSbpOffers({amount, sbpOnly = false} = {})
         .filter((offer) => !amount || (amount >= offer.minAmount && amount <= offer.maxAmount))
         .sort((a, b) => a.price - b.price);
 
-    return {offers, total, scanned: items.length, sbpIds, fetchedAt: new Date().toISOString()};
+    return {fiat, offers, total, scanned: items.length, sbpIds, fetchedAt: new Date().toISOString()};
 }
 
 function toOffer(item, paymentNames, sbpSet)

@@ -8,13 +8,13 @@ export default function HomePage({searchParams})
         <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-8 sm:py-14">
             <header className="mb-8 border-b border-stone-200 pb-6">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
-                    Bybit P2P · RUB → USDT
+                    Bybit P2P · USD → USDT
                 </p>
                 <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
                     Offers payable via СБП
                 </h1>
                 <p className="mt-3 max-w-2xl text-stone-600">
-                    Every online ad where you buy USDT for rubles and can pay through
+                    Every online ad where you buy USDT for dollars (or rubles) and can pay through
                     Система быстрых платежей. Cheapest first.
                 </p>
             </header>
